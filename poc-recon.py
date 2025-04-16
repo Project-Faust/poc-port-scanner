@@ -36,18 +36,21 @@ def get_args():
     port_group.add_argument("-p", "--port", 
                                 type=int, 
                                 dest="port",
+                                default=80,
                                 help="Scan single target port"
                             )
     
     # -pr/--port-range for port range
     port_group.add_argument("-pr", "--port-range", 
                                 dest="port_range",
+                                default="1-1000",
                                 help=" Scan range of ports (inclusive)"
                             )
     
     # -pL/--port-list for port list (comma-separated list)
     port_group.add_argument("-pL", "--port-list",
                                 dest="port_list",
+                                default="22,80,443,3306,8080",
                                 help="Scan comma-separated list of ports to scan"
                             )
     
@@ -61,6 +64,7 @@ def get_args():
     port_group.add_argument("-tP", "--top-ports",
                                 dest="top_ports", 
                                 type=int,
+                                default=5,
                                 help="Scan n (int) most common ports"
                             )
     
