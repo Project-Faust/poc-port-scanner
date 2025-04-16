@@ -12,7 +12,7 @@ def get_args():
     # Parse CL args/flags
     parser = argparse.ArgumentParser(
         description="Proof of Concept Recon Tool",
-        formatter_class=argparse.ArgumentDefaultHelpFormatter
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
         )
     
     # Define set of args/flags    
@@ -36,20 +36,32 @@ def get_args():
     port_group.add_argument("-p", "--port", 
                                 dest="port", 
                                 type=int, 
-                                help="Target port"
+                                help="-p --port 80 \n Scan single target port"
                             )
     
-    # --ports for port range
-    port_group.add_argument("--ports", 
+    # -pr/--port-range for port range
+    port_group.add_argument("-pr", "--port-range", 
                                 dest="port_range",
-                                help="Port range to scan (e.g. 80-100)"
+                                help="-pr --port-range 80-443 \n Scan inclusive range of ports to scan"
                             )
     
-    # --top for top common
-    port_group.add_argument("--top", 
+    # -pL/--port-list for port list (comma-separated list)
+    port_group.add_argument("-pL", "--port-list",
+                                dest="port_list",
+                                help="-pL --port-list 22, 80, 443 \n Scan comma-separated list of ports to scan (e.g. 80, 443, 3389)"
+                                )
+    
+    # -pF/--port-file for port list (text file)
+    port_group.add_argument("-pF", "--port-file",
+                            dest="port_file",
+                            help="-pF --port-file example_list.txt \n Scan port list entries in text file (one per line)"
+                            )
+    
+    # -tP/--top-ports for top common ports
+    port_group.add_argument("-tP", "--top-ports", type=int,
                                 dest="top_ports", 
                                 action="store_true", 
-                                help="Scan top common ports"
+                                help="-tP/--top-ports n \n Scan n most common ports"
                             )
     
     # Parse and return args/flags
