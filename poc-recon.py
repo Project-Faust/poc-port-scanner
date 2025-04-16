@@ -2,17 +2,55 @@ import socket # Network communication; socket operations
 import sys # System-level operations like exiting program
 import time # Time-based operations (timeout, interval)
 import argparse # Parse CL args
+import ipaddress # Validating IP addresses
+import os # File operations
+
+import concurrent.futures # experimental, parallel scanning
 
 def get_args():
+    
     # Parse CL args/flags
-    parser = argparse.ArgumentParser(description="Proof of Concept Recon Tool")
+    parser = argparse.ArgumentParser(
+        description="Proof of Concept Recon Tool",
+        formatter_class=argparse.ArgumentDefaultHelpFormatter
+        )
     
     # Define set of args/flags    
-    # -t or --target flag to specify target IP or domain
-    parser.add_argument("-t", "--target", dest="target", help="Target IP address or domain")
+    target_group = parser.add_mutually_exclusive_group(required=True)
     
-    # -p or --port flag to specify target port to scan
-    parser.add_argument("-p", "--port", dest="port", type=int, help="Target port")
+    # -t or --target flag to specify target (single) IP or domain
+    target_group.add_argument("-t", "--target", 
+                                dest="target", 
+                                help="Target IP address or domain"
+                            )
+    # -l or --list flag to specify list of targets (via text file)
+    target_group.add_argument("-l", "--list", 
+                                dest="target_list",
+                                help="File containing list of targets (one per line)"
+                            )
+    
+    # Define port options
+    port_group = parser.add_argument_group("Port Options")
+    
+    # -p/--port flag to specify target port to scan
+    port_group.add_argument("-p", "--port", 
+                                dest="port", 
+                                type=int, 
+                                help="Target port"
+                            )
+    
+    # --ports for port range
+    port_group.add_argument("--ports", 
+                                dest="port_range",
+                                help="Port range to scan (e.g. 80-100)"
+                            )
+    
+    # --top for top common
+    port_group.add_argument("--top", 
+                                dest="top_ports", 
+                                action="store_true", 
+                                help="Scan top common ports"
+                            )
     
     # Parse and return args/flags
     return parser.parse_args()
