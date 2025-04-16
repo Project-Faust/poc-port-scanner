@@ -19,6 +19,7 @@ def get_args():
         )
     
     # Define set of args/flags    
+    # Force mutual exclusivity and require a single target or a text file for list of targets
     target_group = parser.add_mutually_exclusive_group(required=True)
     
     # -t or --target flag to specify target (single) IP or domain
@@ -33,6 +34,7 @@ def get_args():
                             )
     
     # Define port options
+    # Force mutual exclusivity to prevent unintended consequences
     port_group = parser.add_mutually_exclusive_group()
     
     # -p/--port flag to specify target port to scan
@@ -71,6 +73,7 @@ def get_args():
                                 help="Scan n (int) most common ports"
                             )
     
+    # -a/--all-ports for all ports (1-65535)
     port_group.add_argument("-a", "--all-ports",
                                 dest="all_ports",
                                 action="store_true",
@@ -116,17 +119,37 @@ def host_lookup(target):
 def main():
     args=get_args()
     
-    if not args.target:
+    # Check to see if target exists
+    if args.target:
+        targets = [args.target]
+    elif args.target_list:
+        targets = load_targets(args.target_list)
+    else:
+        # Should be covered by required=True in target_group, but just in case
         print("[-] Please specify a target or list of targets. \n Use -h or --help for help.")
         sys.exit(1)
         
     target_ip = host_lookup(args.target)
     
-    if args.port:
-        port_scan(target_ip, args.port)
-    else:
+    if args.port is not None:
+        ports = [args.port]
+    elif args.port_ranger is not None:
+        try:
+            start, end = map(int, args.port_range.split('-'))
+            ports - list(range(start, end + 1))
+        except ValueError:
+            print(f"[-] Invalid port range format: {args.port_range}")
+            sys.exit(1)
+    elif args.port_file is not None:
+        ports = load_ports_from_file(args.port_file)
+    elif args.top_ports is not None:
+        # List of common ports asc numerically
         common_ports = [21, 22, 80, 443, 3306, 3389, 8080]
-        print("Scanning common ports...")
+        port = common_ports[:min(args.top_ports, len(common_ports))]
+    elif args.all_ports:
+        ports = list(range(1, 65536))
+    else:
+        print("[*] No port option specified. \n Scanning common ports...")
         for port in common_ports:
                 port_scan(target_ip, port)
                 time.sleep(0.5)
