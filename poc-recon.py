@@ -33,7 +33,7 @@ def get_args():
                             )
     
     # Define port options
-    port_group = parser.add_argument_group("Port Options")
+    port_group = parser.add_mutually_exclusive_group()
     
     # -p/--port flag to specify target port to scan
     port_group.add_argument("-p", "--port", 
