@@ -11,7 +11,10 @@ def get_args():
     
     # Parse CL args/flags
     parser = argparse.ArgumentParser(
-        description="Proof of Concept Port Scanning Tool \n Use -h or --help flag for usage",
+        description="A lightweight, flexible port scanning utility for network reconnaissance. "
+                "Scan single or multiple targets using various port selection methods including "
+                "single ports, port ranges, custom lists, or common service ports. "
+                "Designed for security professionals and network administrators.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
         )
     
@@ -21,12 +24,12 @@ def get_args():
     # -t or --target flag to specify target (single) IP or domain
     target_group.add_argument("-t", "--target", 
                                 dest="target", 
-                                help="-t --target example.com \n Target IP address or domain"
+                                help="Target IP address or domain"
                             )
     # -l or --list flag to specify list of targets (via text file)
     target_group.add_argument("-l", "--list", 
                                 dest="target_list",
-                                help="-l --list example-list.txt \n File containing list of targets (one per line)"
+                                help="File containing list of targets (one per line)"
                             )
     
     # Define port options
@@ -68,7 +71,11 @@ def get_args():
                                 help="Scan n (int) most common ports"
                             )
     
-    
+    port_group.add_argument("-a", "--all-ports",
+                                dest="all_ports",
+                                action="store_true",
+                                help="Scan all ports (1-65535) - use with caution"
+                            )
     
     # Parse and return args/flags
     return parser.parse_args()
