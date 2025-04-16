@@ -80,10 +80,22 @@ def get_args():
                                 help="Scan all ports (1-65535) - use with caution"
                             )
     
+    # Define scan options
+    scan_group = parser.add_argument_group("Scan Options")
+    
+    # Allow user to determine timeout value
+    scan_group.add_argument("--timeout",
+                            dest="timeout",
+                            type=float,
+                            default=2.0,
+                            help="Timeout for connection attempts (seconds)"
+                            )
+    
+    
     # Parse and return args/flags
     return parser.parse_args()
 
-def port_scan(target_ip, port):
+def port_scan(target_ip, port, verbose=False):
     try:
         # Create new socket object for TCP connections
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -94,17 +106,20 @@ def port_scan(target_ip, port):
         # Try to connect to IP and port
         res = sock.connect_ex((target_ip, port))
         
-        # Check to see if port open and connection successful
-        if res == 0:
-            print(f"[+] PORT {port} is open")
-        else:
-            print(f"[-] Port {port} is closed")
-        
-        #
+        # Close connection to prevent excess traffic
         sock.close()
         
-    except socket.error:
-        print("[X] Could not connect to server")
+        # Check to see if port open and connection successful
+        if res == 0:
+            print(f"[+] PORT {port} is open on port on {target_ip}")
+            return True
+        else:
+            if verbose:
+                print(f"[-] Port {port} is closed")
+            return False
+        
+    except socket.error as e:
+        print(f"[X] Error scanning {target_ip}:{port} - {str(e)}")
         sys.exit(1)
         
 def host_lookup(target): 
@@ -117,6 +132,8 @@ def host_lookup(target):
         sys.exit(1)
 
 def main():
+    
+    # Call get_args to interpret user input
     args=get_args()
     
     # Check to see if target exists
@@ -131,23 +148,48 @@ def main():
         
     target_ip = host_lookup(args.target)
     
+    # Get timeout from args
+    timeout = args.timeout
+    
+    # if -p / --port
     if args.port is not None:
         ports = [args.port]
-    elif args.port_ranger is not None:
+        
+    # if -pR / --port-range
+    elif args.port_range is not None:
         try:
             start, end = map(int, args.port_range.split('-'))
-            ports - list(range(start, end + 1))
+            ports = list(range(start, end + 1))
         except ValueError:
             print(f"[-] Invalid port range format: {args.port_range}")
             sys.exit(1)
+            
+    # if -pL / --port-list
+    elif args.port_list is not None:
+        try:
+            ports = [int(port.strip()) for port in args.port_list.split(',')]
+            for port in ports:
+                port_scan(target_ip, port, timeout=timeout)
+                time.sleep(0.5)
+        except ValueError:
+            print(f"[-] Invalid port list format: {args.port_list}")
+            sys.exit(1)
+            
+    # if -pF / --port-file
     elif args.port_file is not None:
         ports = load_ports_from_file(args.port_file)
+        
+    # if -tp / --top-ports
     elif args.top_ports is not None:
         # List of common ports asc numerically
         common_ports = [21, 22, 80, 443, 3306, 3389, 8080]
         port = common_ports[:min(args.top_ports, len(common_ports))]
+        
+    # if -a --all-ports
     elif args.all_ports:
         ports = list(range(1, 65536))
+        
+    # if no port flag
     else:
         print("[*] No port option specified. \n Scanning common ports...")
         for port in common_ports:
