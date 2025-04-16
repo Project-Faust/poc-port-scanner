@@ -11,7 +11,7 @@ def get_args():
     
     # Parse CL args/flags
     parser = argparse.ArgumentParser(
-        description="Proof of Concept Recon Tool",
+        description="Proof of Concept Port Scanning Tool \n Use -h or --help flag for usage",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
         )
     
@@ -21,12 +21,12 @@ def get_args():
     # -t or --target flag to specify target (single) IP or domain
     target_group.add_argument("-t", "--target", 
                                 dest="target", 
-                                help="Target IP address or domain"
+                                help="-t --target example.com \n Target IP address or domain"
                             )
     # -l or --list flag to specify list of targets (via text file)
     target_group.add_argument("-l", "--list", 
                                 dest="target_list",
-                                help="File containing list of targets (one per line)"
+                                help="-l --list example-list.txt \n File containing list of targets (one per line)"
                             )
     
     # Define port options
@@ -34,35 +34,37 @@ def get_args():
     
     # -p/--port flag to specify target port to scan
     port_group.add_argument("-p", "--port", 
-                                dest="port", 
                                 type=int, 
-                                help="-p --port 80 \n Scan single target port"
+                                dest="port",
+                                help="Scan single target port"
                             )
     
     # -pr/--port-range for port range
     port_group.add_argument("-pr", "--port-range", 
                                 dest="port_range",
-                                help="-pr --port-range 80-443 \n Scan inclusive range of ports to scan"
+                                help=" Scan range of ports (inclusive)"
                             )
     
     # -pL/--port-list for port list (comma-separated list)
     port_group.add_argument("-pL", "--port-list",
                                 dest="port_list",
-                                help="-pL --port-list 22, 80, 443 \n Scan comma-separated list of ports to scan (e.g. 80, 443, 3389)"
-                                )
+                                help="Scan comma-separated list of ports to scan"
+                            )
     
     # -pF/--port-file for port list (text file)
     port_group.add_argument("-pF", "--port-file",
                             dest="port_file",
-                            help="-pF --port-file example_list.txt \n Scan port list entries in text file (one per line)"
+                            help="Scan port list entries in text file (one per line)"
                             )
     
     # -tP/--top-ports for top common ports
-    port_group.add_argument("-tP", "--top-ports", type=int,
+    port_group.add_argument("-tP", "--top-ports",
                                 dest="top_ports", 
-                                action="store_true", 
-                                help="-tP/--top-ports n \n Scan n most common ports"
+                                type=int,
+                                help="Scan n (int) most common ports"
                             )
+    
+    
     
     # Parse and return args/flags
     return parser.parse_args()
