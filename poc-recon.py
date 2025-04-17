@@ -110,6 +110,31 @@ def load_targets(target_file):
     except Exception as e:
         print(f"[-] Error reading target file: {str(e)}")
         sys.exit(1)
+        
+# Read ports to scan from file
+def load_ports_from_file(port_file):
+    try:
+        with open(port_file, 'r') as f:
+            ports = []
+            for line in f:
+                try:
+                    port = int(line.strip())
+                    if 1 <= port <= 65535:
+                        ports.append(port)
+                    else:
+                        print(f"[-] Invalid port number in file: {port_file}")
+                except ValueError:
+                    print(f"[-] Invalid port format in file: {port_file}")
+        if not ports:
+            print(f"[-] No valid ports in file: {port_file}")
+            sys.exit(1)
+        return ports
+    except FileNotFoundError:
+        print(f"[-] Port file not found: {port_file}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"[-] Error reading port file: {str(e)}")
+        sys.exit(1)
 
 def port_scan(target_ip, port, verbose=False):
     try:
