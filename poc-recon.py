@@ -105,10 +105,10 @@ def load_targets(target_file):
             sys.exit(1)
         return targets
     except FileNotFoundError:
-        print(f"[-] Target file not found: {target_file}")
+        print(f"[X] Target file not found: {target_file}")
         sys.exit(1)
     except Exception as e:
-        print(f"[-] Error reading target file: {str(e)}")
+        print(f"[X] Error reading target file: {str(e)}")
         sys.exit(1)
         
 # Read ports to scan from file
@@ -124,16 +124,16 @@ def load_ports_from_file(port_file):
                     else:
                         print(f"[-] Invalid port number in file: {port_file}")
                 except ValueError:
-                    print(f"[-] Invalid port format in file: {port_file}")
+                    print(f"[X] Invalid port format in file: {port_file}")
         if not ports:
             print(f"[-] No valid ports in file: {port_file}")
             sys.exit(1)
         return ports
     except FileNotFoundError:
-        print(f"[-] Port file not found: {port_file}")
+        print(f"[X] Port file not found: {port_file}")
         sys.exit(1)
     except Exception as e:
-        print(f"[-] Error reading port file: {str(e)}")
+        print(f"[X] Error reading port file: {str(e)}")
         sys.exit(1)
 
 def port_scan(target_ip, port, verbose=False):
@@ -169,7 +169,7 @@ def host_lookup(target):
         print(f"[+] Target IP: {target_ip}")
         return target_ip
     except socket.gaierror:
-        print("[-] Hostname could not be resolved")
+        print("[X] Hostname could not be resolved")
         sys.exit(1)
 
 def main():
@@ -202,7 +202,7 @@ def main():
             start, end = map(int, args.port_range.split('-'))
             ports = list(range(start, end + 1))
         except ValueError:
-            print(f"[-] Invalid port range format: {args.port_range}")
+            print(f"[X] Invalid port range format: {args.port_range}")
             sys.exit(1)
             
     # if -pL / --port-list
@@ -213,7 +213,7 @@ def main():
                 port_scan(target_ip, port, timeout=timeout)
                 time.sleep(0.5)
         except ValueError:
-            print(f"[-] Invalid port list format: {args.port_list}")
+            print(f"[X] Invalid port list format: {args.port_list}")
             sys.exit(1)
             
     # if -pF / --port-file
