@@ -136,7 +136,7 @@ def load_ports_from_file(port_file):
         print(f"[X] Error reading port file: {str(e)}")
         sys.exit(1)
 
-def port_scan(target_ip, port, timeout=2.0):
+def port_scan(target_ip, port, timeout=2.0, verbose=False):
     try:
         # Create new socket object for TCP connections
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -173,11 +173,9 @@ def host_lookup(target):
         sys.exit(1)
 
 def main():
-    
-    # Call get_args to interpret user input
     args=get_args()
     
-    # Check to see if target exists
+    # Check to see if target exists (as string or txt file)
     if args.target:
         targets = [args.target]
     elif args.target_list:
@@ -186,56 +184,54 @@ def main():
         # Should be covered by required=True in target_group, but just in case
         print("[-] Please specify a target or list of targets. \n Use -h or --help for help.")
         sys.exit(1)
+
+    for _target in targets:        
+        target_ip = host_lookup(args.target)
+        timeout = args.timeout
         
-    target_ip = host_lookup(args.target)
-    
-    # Get timeout from args
-    timeout = args.timeout
-    
-    # if -p / --port
-    if args.port is not None:
-        ports = [args.port]
-        
-    # if -pR / --port-range
-    elif args.port_range is not None:
-        try:
-            start, end = map(int, args.port_range.split('-'))
-            ports = list(range(start, end + 1))
-        except ValueError:
-            print(f"[X] Invalid port range format: {args.port_range}")
-            sys.exit(1)
+        # if -p / --port
+        if args.port is not None:
+            ports = [args.port]
             
-    # if -pL / --port-list
-    elif args.port_list is not None:
-        try:
-            ports = [int(port.strip()) for port in args.port_list.split(',')]
-            for port in ports:
-                port_scan(target_ip, port, timeout=timeout)
-                time.sleep(0.5)
-        except ValueError:
-            print(f"[X] Invalid port list format: {args.port_list}")
-            sys.exit(1)
-            
-    # if -pF / --port-file
-    elif args.port_file is not None:
-        ports = load_ports_from_file(args.port_file)
-        
-    # if -tp / --top-ports
-    elif args.top_ports is not None:
-        # List of common ports asc numerically
-        common_ports = [21, 22, 80, 443, 3306, 3389, 8080]
-        ports = common_ports[:min(args.top_ports, len(common_ports))]
-        
-    # if -a --all-ports
-    elif args.all_ports:
-        ports = list(range(1, 65536))
-        
-    # if no port flag
-    else:
-        print("[*] No port option specified. \n Scanning common ports...")
-        for port in common_ports:
-                port_scan(target_ip, port)
-                time.sleep(0.5)
+        # if -pR / --port-range
+        elif args.port_range is not None:
+            try:
+                start, end = map(int, args.port_range.split('-'))
+                ports = list(range(start, end + 1))
+            except ValueError:
+                print(f"[X] Invalid port range format: {args.port_range}")
+                sys.exit(1)
                 
+        # if -pL / --port-list
+        elif args.port_list is not None:
+            try:
+                ports = [int(port.strip()) for port in args.port_list.split(',')]
+                for port in ports:
+                    port_scan(target_ip, port, timeout=timeout)
+                    time.sleep(0.5)
+            except ValueError:
+                print(f"[X] Invalid port list format: {args.port_list}")
+                sys.exit(1)
+                
+        # if -pF / --port-file
+        elif args.port_file is not None:
+            ports = load_ports_from_file(args.port_file)
+            
+        # if -tp / --top-ports
+        elif args.top_ports is not None:
+            common_ports = [21, 22, 80, 443, 3306, 3389, 8080]
+            ports = common_ports[:min(args.top_ports, len(common_ports))]
+            
+        # if -a / --all-ports
+        elif args.all_ports:
+            ports = list(range(1, 65536))
+            
+        # if no port flag
+        else:
+            print("[*] No port option specified. \n Scanning common ports...")
+            for port in common_ports:
+                    port_scan(target_ip, port)
+                    time.sleep(0.5)
+                    
 if __name__ == "__main__":
     main()
