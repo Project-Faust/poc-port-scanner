@@ -56,7 +56,7 @@ def get_args():
     port_group.add_argument("-pL", "--port-list",
                                 dest="port_list",
                                 default="22,80,443,3306,8080",
-                                help="Scan comma-separated list of ports to scan"
+                                help="Scan comma-separated list of ports to scan (no spaces)"
                             )
     
     # -pF/--port-file for port list (text file)
@@ -89,6 +89,14 @@ def get_args():
                             type=float,
                             default=2.0,
                             help="Timeout for connection attempts (seconds)"
+                            )
+    
+    # Allow user to set verbose output
+    scan_group.add_argument("-v", "--verbose",
+                            dest="verbose",
+                            type=bool,
+                            default=False,
+                            help="Enable verbose for expanded output"
                             )
     
     
@@ -155,6 +163,7 @@ def port_scan(target_ip, port, timeout=2.0, verbose=False):
             print(f"[+] PORT {port} is open on {target_ip}")
             return True
         else:
+            # Only show closed ports if -v / --verbose
             if verbose:
                 print(f"[-] Port {port} is closed")
             return False
@@ -166,7 +175,7 @@ def port_scan(target_ip, port, timeout=2.0, verbose=False):
 def host_lookup(target): 
     try:
         target_ip = socket.gethostbyname(target)
-        print(f"[+] Target IP: {target_ip}")
+        print(f"[*] Target IP: {target_ip}")
         return target_ip
     # Catch getaddrinfo() error but let program continue to any subsequent targets
     except socket.gaierror:
@@ -214,9 +223,7 @@ def main():
         elif args.port_list is not None:
             try:
                 ports = [int(port.strip()) for port in args.port_list.split(',')]
-                for port in ports:
-                    port_scan(target_ip, port, timeout=timeout)
-                    time.sleep(0.5)
+
             except ValueError:
                 print(f"[X] Invalid port list format: {args.port_list}")
                 sys.exit(1)
@@ -240,5 +247,9 @@ def main():
                     port_scan(target_ip, port)
                     time.sleep(0.5)
                     
+        # After ports are parsed and assigned as list
+        for port in ports:
+            port_scan(target_ip, port, timeout=timeout)
+            time.sleep(0.5)
 if __name__ == "__main__":
     main()
