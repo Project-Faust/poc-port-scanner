@@ -224,7 +224,7 @@ def main():
     elif args.top_ports is not None:
         # List of common ports asc numerically
         common_ports = [21, 22, 80, 443, 3306, 3389, 8080]
-        port = common_ports[:min(args.top_ports, len(common_ports))]
+        ports = common_ports[:min(args.top_ports, len(common_ports))]
         
     # if -a --all-ports
     elif args.all_ports:
