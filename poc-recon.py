@@ -175,6 +175,8 @@ def host_lookup(target):
 
 def main():
     args=get_args()
+    common_ports = [21, 22, 80, 443, 3306, 3389, 8080]
+    timeout = args.timeout
     
     # Check to see if target exists (as string or txt file)
     if args.target:
@@ -187,8 +189,6 @@ def main():
         sys.exit(1)
 
     for target in targets:        
-        common_ports = [21, 22, 80, 443, 3306, 3389, 8080]
-        timeout = args.timeout
         target_ip = host_lookup(target)
         
         if target_ip is None:
