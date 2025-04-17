@@ -185,7 +185,7 @@ def main():
         print("[-] Please specify a target or list of targets. \n Use -h or --help for help.")
         sys.exit(1)
 
-    for _target in targets:        
+    for target in targets:        
         target_ip = host_lookup(args.target)
         timeout = args.timeout
         
