@@ -168,9 +168,10 @@ def host_lookup(target):
         target_ip = socket.gethostbyname(target)
         print(f"[+] Target IP: {target_ip}")
         return target_ip
+    # Catch getaddrinfo() error but let program continue to any subsequent targets
     except socket.gaierror:
         print("[X] Hostname could not be resolved")
-        sys.exit(1)
+        return None
 
 def main():
     args=get_args()
