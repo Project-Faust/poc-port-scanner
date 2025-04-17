@@ -136,13 +136,13 @@ def load_ports_from_file(port_file):
         print(f"[X] Error reading port file: {str(e)}")
         sys.exit(1)
 
-def port_scan(target_ip, port, verbose=False):
+def port_scan(target_ip, port, timeout=2.0):
     try:
         # Create new socket object for TCP connections
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         
         # Set a timeout in case of long response time
-        sock.settimeout(2)
+        sock.settimeout(timeout)
         
         # Try to connect to IP and port
         res = sock.connect_ex((target_ip, port))
