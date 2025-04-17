@@ -152,7 +152,7 @@ def port_scan(target_ip, port, timeout=2.0, verbose=False):
         
         # Check to see if port open and connection successful
         if res == 0:
-            print(f"[+] PORT {port} is open on port on {target_ip}")
+            print(f"[+] PORT {port} is open on {target_ip}")
             return True
         else:
             if verbose:
@@ -187,8 +187,15 @@ def main():
         sys.exit(1)
 
     for target in targets:        
-        target_ip = host_lookup(args.target)
+        common_ports = [21, 22, 80, 443, 3306, 3389, 8080]
         timeout = args.timeout
+        target_ip = host_lookup(target)
+        
+        if target_ip is None:
+            print(f"[X] Skipping {target}. Failed hostname lookup.")
+            continue
+        
+        print(f"\n Starting scan on {target} ({target_ip})")
         
         # if -p / --port
         if args.port is not None:
@@ -220,7 +227,6 @@ def main():
             
         # if -tp / --top-ports
         elif args.top_ports is not None:
-            common_ports = [21, 22, 80, 443, 3306, 3389, 8080]
             ports = common_ports[:min(args.top_ports, len(common_ports))]
             
         # if -a / --all-ports
