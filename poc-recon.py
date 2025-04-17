@@ -95,6 +95,22 @@ def get_args():
     # Parse and return args/flags
     return parser.parse_args()
 
+# Read target IPs/domains from file
+def load_targets(target_file):
+    try:
+        with open(target_file, 'r') as f:
+            targets = [line.strip() for line in f if line.strip()]
+        if not targets:
+            print(f"[-] No valid targets found in {target_file}")
+            sys.exit(1)
+        return targets
+    except FileNotFoundError:
+        print(f"[-] Target file not found: {target_file}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"[-] Error reading target file: {str(e)}")
+        sys.exit(1)
+
 def port_scan(target_ip, port, verbose=False):
     try:
         # Create new socket object for TCP connections
